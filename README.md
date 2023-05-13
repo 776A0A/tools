@@ -2,12 +2,18 @@
 
 要将 `run_sh` 脚本添加到环境变量中，让你可以在任意位置使用该命令，可以按照以下步骤进行操作：
 
-1. 将 `run_sh` 脚本复制到一个你想要存放脚本的目录中，例如 `/usr/local/bin`
+1. 将 `run_sh` 脚本复制到一个你想要存放脚本的目录中，例如 `/usr/local/bin`：
+
+```
+cd /usr/local/bin
+
+wget https://raw.githubusercontent.com/776A0A/tools/main/run_sh.sh
+```
 
 2. 添加可执行权限，使用以下命令：
 
    ```
-   chmod +x /usr/local/bin/run_sh
+   chmod +x /usr/local/bin/run_sh.sh
    ```
 
 3. 打开你的 `.bashrc` 文件，使用以下命令：
