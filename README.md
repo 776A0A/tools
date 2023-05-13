@@ -8,12 +8,12 @@
 
 ## 使用方法
 
-1. 将 run_web_sh.sh 文件下载到本地。
-2. 打开终端，进入 run_web_sh.sh 所在的目录。
+1. 将 run_web_sh 文件下载到本地。
+2. 打开终端，进入 run_web_sh 所在的目录。
 3. 运行以下命令：
 
 ```
-./run_web_sh.sh <script_url1> [<script_url2> ...]
+./run_web_sh <script_url1> [<script_url2> ...]
 ```
 
 其中，`<script_url1>`是第一个 Web 脚本的 URL，`[<script_url2> ...]`是可选的其他 Web 脚本的 URL。
@@ -23,7 +23,7 @@
 ## 示例
 
 ```
-./run_web_sh.sh https://example.com/script.sh
+./run_web_sh https://example.com/script
 ```
 
 ## 注意事项
@@ -40,13 +40,13 @@
 ```
 cd /usr/local/bin
 
-wget https://raw.githubusercontent.com/776A0A/tools/main/run_web_sh.sh
+wget https://raw.githubusercontent.com/776A0A/tools/main/run_web_sh
 ```
 
 2. 添加可执行权限，使用以下命令：
 
    ```
-   chmod +x /usr/local/bin/run_web_sh.sh
+   chmod +x /usr/local/bin/run_web_sh
    ```
 
 3. 打开你的 `.bashrc` 文件，使用以下命令：
@@ -78,7 +78,7 @@ wget https://raw.githubusercontent.com/776A0A/tools/main/run_web_sh.sh
 ## 使用方法
 
 ```sh
-./zip_it.sh <file/dir> [name]
+./zip_it <file/dir> [name]
 ```
 
 - `<file/dir>`：要压缩的文件或目录的路径。
@@ -89,13 +89,13 @@ wget https://raw.githubusercontent.com/776A0A/tools/main/run_web_sh.sh
 将文件 `example.txt` 压缩为 `packed/example.zip`：
 
 ```sh
-./zip_it.sh example.txt example
+./zip_it example.txt example
 ```
 
 将目录 `example_dir` 压缩为 `packed/example_dir.zip`：
 
 ```sh
-./zip_it.sh example_dir
+./zip_it example_dir
 ```
 
 ## 注意事项

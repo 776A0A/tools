@@ -24,7 +24,7 @@ if [ ! -d "packed" ]; then
 fi
 
 if [ $# -eq 0 ]; then
-  echo "Usage: zip_it.sh <file/dir> [name]"
+  echo "Usage: zip_it <file/dir> [name]"
   exit 1
 fi
 
