@@ -1,10 +1,31 @@
 #!/bin/bash
 
 function run_firewalld() {
+    echo_green "启动firewalld..."
     run_command systemctl start firewalld
+
+    echo_green "firewalld设置开机自启动..."
     run_command systemctl enable firewalld
-    run_command firewall-cmd --permanent --zone=public --add-service=http --add-service=https
+
+    # 检查 http 是否已经开启
+    http_enabled=$(firewall-cmd --list-services | grep -o http)
+    if [ -z "$http_enabled" ]; then
+        run_command firewall-cmd --permanent --zone=public --add-service=http
+    fi
+
+    # 检查 https 是否已经开启
+    https_enabled=$(firewall-cmd --list-services | grep -o https)
+    if [ -z "$https_enabled" ]; then
+        run_command firewall-cmd --permanent --zone=public --add-service=https
+    fi
+
+    # 检查防火墙规则是否需要重新加载
+    # if firewall-cmd --permanent --query | grep -q '^\s*\(service\|port\|masquerade\|forward-ports\|icmp-blocks\|rich-rules\)\s*\(\|\s.*\)$'; then
+    #     run_command firewall-cmd --reload
+    # fi
+
     run_command firewall-cmd --reload
+
 }
 
 function run_nginx() {
@@ -22,8 +43,8 @@ function run_nginx() {
         echo_green "启动nginx..."
         run_command systemctl start nginx
 
+        echo_green "nginx设置开机自启动..."
         run_command systemctl enable nginx
-        echo_green "nginx已设置开机自启！"
     fi
 }
 
@@ -44,11 +65,11 @@ function run_mysql() {
         echo_green "mysql配置文件地址：/etc/my.cnf"
         echo_green "mysql数据库存储地址：/var/lib/mysql"
 
-        echo_green "启动mysql..."
+        echo_green "启动mysqld..."
         run_command systemctl start mysqld
 
+        echo_green "mysqld设置开机自启动..."
         run_command systemctl enable mysqld
-        echo_green "mysql已设置开机自启！"
     fi
 }
 
