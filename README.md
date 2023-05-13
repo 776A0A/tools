@@ -1,6 +1,37 @@
 # 个人的实用用具
 
-# 将 run_web_sh 加入环境变量（CentOS 7）
+# run_web_sh
+
+## 简介
+
+该脚本是一个用于运行 Web 脚本的 Shell 脚本，可以通过传入脚本的 URL 来运行 Web 脚本。
+
+## 使用方法
+
+1. 将 run_web_sh.sh 文件下载到本地。
+2. 打开终端，进入 run_web_sh.sh 所在的目录。
+3. 运行以下命令：
+
+```
+./run_web_sh.sh <script_url1> [<script_url2> ...]
+```
+
+其中，`<script_url1>`是第一个 Web 脚本的 URL，`[<script_url2> ...]`是可选的其他 Web 脚本的 URL。
+
+4. 脚本会依次运行传入的所有 Web 脚本。
+
+## 示例
+
+```
+./run_web_sh.sh https://example.com/script.sh
+```
+
+## 注意事项
+
+- 请确保您的计算机已经安装了 curl 和 bash。
+- 请确保您传入的 URL 是可信的，以避免安全问题。
+
+## 将 run_web_sh 加入环境变量（CentOS 7）
 
 要将 `run_web_sh` 脚本添加到环境变量中，让你可以在任意位置使用该命令，可以按照以下步骤进行操作：
 
@@ -38,7 +69,9 @@ wget https://raw.githubusercontent.com/776A0A/tools/main/run_web_sh.sh
    source ~/.bashrc
    ```
 
-# pack_it.sh
+# pack_it
+
+## 简介
 
 该脚本用于将文件或目录压缩为 zip 格式，并保存到指定目录。
 
