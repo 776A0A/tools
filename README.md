@@ -104,3 +104,19 @@ wget https://raw.githubusercontent.com/776A0A/tools/main/run_web_sh
 - 如果指定的名称已存在，将覆盖原有文件。
 - 如果指定的路径为目录，则将目录及其子目录下的所有文件和文件夹压缩为一个 zip 文件。
 - 如果指定的路径为文件，则将该文件压缩为一个 zip 文件。
+
+# nginx 配置
+
+## 简介
+
+nginx 配置基础模版
+
+## 使用方法
+
+```
+run_web_sh https://raw.githubusercontent.com/776A0A/tools/main/get_nginx_config
+```
+
+## 注意事项
+
+- `nginx.conf` 中需要替换的值：`YOUR_APP`、`$your_site_com`
