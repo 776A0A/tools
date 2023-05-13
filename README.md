@@ -69,7 +69,7 @@ wget https://raw.githubusercontent.com/776A0A/tools/main/run_web_sh.sh
    source ~/.bashrc
    ```
 
-# pack_it
+# zip_it
 
 ## 简介
 
@@ -78,7 +78,7 @@ wget https://raw.githubusercontent.com/776A0A/tools/main/run_web_sh.sh
 ## 使用方法
 
 ```sh
-./pack_it.sh <file/dir> [name]
+./zip_it.sh <file/dir> [name]
 ```
 
 - `<file/dir>`：要压缩的文件或目录的路径。
@@ -89,13 +89,13 @@ wget https://raw.githubusercontent.com/776A0A/tools/main/run_web_sh.sh
 将文件 `example.txt` 压缩为 `packed/example.zip`：
 
 ```sh
-./pack_it.sh example.txt example
+./zip_it.sh example.txt example
 ```
 
 将目录 `example_dir` 压缩为 `packed/example_dir.zip`：
 
 ```sh
-./pack_it.sh example_dir
+./zip_it.sh example_dir
 ```
 
 ## 注意事项
