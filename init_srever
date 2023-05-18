@@ -92,6 +92,9 @@ function main() {
     run_firewalld
     run_nginx
     # run_mysql
+
+    # 在 /etc/vimrc 文件中添加行号
+    echo -e "\nset nu" >>/etc/vimrc
 }
 
 main
