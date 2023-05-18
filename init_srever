@@ -91,7 +91,7 @@ function echo_red() {
 function main() {
     run_firewalld
     run_nginx
-    run_mysql
+    # run_mysql
 }
 
 main
