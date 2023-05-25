@@ -6,11 +6,11 @@ if ! command -v ffmpeg &>/dev/null; then
 fi
 
 if [ $# -lt 2 ]; then
-    echo "Usage: cv time_range input_file [out_dir]"
+    echo "Usage: cv time_range1,time_range2,... input_file [out_dir]"
     exit
 fi
 
-time_range=$1
+IFS=',' read -ra time_ranges <<<"$1"
 input_file=$2
 
 if [ ! -f "$input_file" ]; then
@@ -27,10 +27,11 @@ fi
 input_file_name=$(basename "$input_file")
 input_file_extension="${input_file_name##*.}"
 input_file_name="${input_file_name%.*}"
-output_file_name="$input_file_name"_"${time_range//:/_}"."$input_file_extension"
-output_file="$out_dir/$output_file_name"
 
-# -avoid_negative_ts 1
-ffmpeg -ss "${time_range%-*}" -to "${time_range#*-}" -accurate_seek -i "$input_file" -c copy "$output_file"
+for time_range in "${time_ranges[@]}"; do
+    output_file_name="$input_file_name"_"${time_range//:/_}"."$input_file_extension"
+    output_file="$out_dir/$output_file_name"
 
-echo "Output file saved as $output_file"
+    ffmpeg -ss "${time_range%-*}" -to "${time_range#*-}" -accurate_seek -i "$input_file" -c copy "$output_file"
+    echo "Output file saved as $output_file"
+done
