@@ -33,5 +33,5 @@ for time_range in "${time_ranges[@]}"; do
     output_file="$out_dir/$output_file_name"
 
     ffmpeg -loglevel error -ss "${time_range%-*}" -to "${time_range#*-}" -accurate_seek -i "$input_file" -c copy "$output_file"
-    echo "Output file saved as $output_file"
+    echo -e "\033[32mOutput file saved as $output_file\033[0m"
 done
