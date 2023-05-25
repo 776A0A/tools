@@ -30,6 +30,7 @@ input_file_name="${input_file_name%.*}"
 output_file_name="$input_file_name"_"${time_range//:/_}"."$input_file_extension"
 output_file="$out_dir/$output_file_name"
 
-ffmpeg -ss "${time_range%-*}" -to "${time_range#*-}" -accurate_seek -i "$input_file" -c copy -avoid_negative_ts 1 "$output_file"
+# -avoid_negative_ts 1
+ffmpeg -ss "${time_range%-*}" -to "${time_range#*-}" -accurate_seek -i "$input_file" -c copy "$output_file"
 
 echo "Output file saved as $output_file"
