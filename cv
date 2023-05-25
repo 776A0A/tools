@@ -5,24 +5,21 @@ if ! command -v ffmpeg &>/dev/null; then
     exit
 fi
 
-if [ $# -lt 3 ]; then
-    echo "Usage: cv start_time end_time input_file [out_dir]"
+if [ $# -lt 2 ]; then
+    echo "Usage: cv time_range input_file [out_dir]"
     exit
 fi
 
-start_time=$1
-end_time=$2
-start_time_formatted=${1//:/_}
-end_time_formatted=${2//:/_}
-input_file=$3
+time_range=$1
+input_file=$2
 
 if [ ! -f "$input_file" ]; then
     echo "Input file does not exist"
     exit
 fi
 
-if [ $# -eq 4 ]; then
-    out_dir=$4
+if [ $# -eq 3 ]; then
+    out_dir=$3
 else
     out_dir=$(dirname "$input_file")
 fi
@@ -30,9 +27,9 @@ fi
 input_file_name=$(basename "$input_file")
 input_file_extension="${input_file_name##*.}"
 input_file_name="${input_file_name%.*}"
-output_file_name="$input_file_name""_$start_time_formatted-$end_time_formatted.$input_file_extension"
+output_file_name="$input_file_name"_"${time_range//:/_}"."$input_file_extension"
 output_file="$out_dir/$output_file_name"
 
-ffmpeg -ss "$start_time" -to "$end_time" -accurate_seek -i "$input_file" -c copy -avoid_negative_ts 1 "$output_file"
+ffmpeg -ss "${time_range%-*}" -to "${time_range#*-}" -accurate_seek -i "$input_file" -c copy -avoid_negative_ts 1 "$output_file"
 
 echo "Output file saved as $output_file"
