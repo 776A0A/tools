@@ -29,9 +29,9 @@ input_file_extension="${input_file_name##*.}"
 input_file_name="${input_file_name%.*}"
 
 for time_range in "${time_ranges[@]}"; do
-    output_file_name="$input_file_name"_"${time_range//:/_}"."$input_file_extension"
+    output_file_name="$input_file_name"__"${time_range//:/_}"."$input_file_extension"
     output_file="$out_dir/$output_file_name"
 
-    ffmpeg -ss "${time_range%-*}" -to "${time_range#*-}" -accurate_seek -i "$input_file" -c copy "$output_file"
+    ffmpeg -loglevel error -ss "${time_range%-*}" -to "${time_range#*-}" -accurate_seek -i "$input_file" -c copy "$output_file"
     echo "Output file saved as $output_file"
 done
