@@ -19,16 +19,19 @@ if [ ! -f "$input_file" ]; then
 fi
 
 if [ $# -eq 3 ]; then
-    out_dir=$3
+    out_dir="$3"
 else
-    out_dir=$(dirname "$input_file")
+    out_dir=$(dirname -- "$input_file")
 fi
 
-input_file_name=$(basename "$input_file")
+input_file_name=$(basename -- "$input_file")
 input_file_extension="${input_file_name##*.}"
 input_file_name="${input_file_name%.*}"
 
 for time_range in "${time_ranges[@]}"; do
+
+    time_range=${time_range//./:}
+
     output_file_name="$input_file_name"__"${time_range//:/_}"."$input_file_extension"
     output_file="$out_dir/$output_file_name"
 
@@ -37,5 +40,10 @@ for time_range in "${time_ranges[@]}"; do
     # -avoid_negative_ts 1
     ffmpeg -loglevel error -ss "${time_range%-*}" -to "${time_range#*-}" -accurate_seek -i "$input_file" -c copy "$output_file"
 
-    echo -e "\033[32mOutput file saved as $output_file\033[0m"
+    if [ $? -eq 0 ]; then
+        echo -e "\033[32mOutput file saved as $output_file\033[0m"
+    else
+        echo -e "\033[31mFailed!\033[0m"
+    fi
+
 done
