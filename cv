@@ -47,3 +47,5 @@ for time_range in "${time_ranges[@]}"; do
     fi
 
 done
+
+echo -e "\033[32mAll tasks have been completed\033[0m"
