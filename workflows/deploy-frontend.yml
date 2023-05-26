@@ -1,32 +1,32 @@
 name: Deploy
 
 on:
-  push:
-    branches: [dev, main, prerelease]
-  merge_group:
-    branches: [dev, main, prerelease]
+    push:
+        branches: [dev, main, prerelease]
+    merge_group:
+        branches: [dev, main, prerelease]
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "18.x"
-      - name: Install Dependencies
-        run: npm install -g pnpm && pnpm install
-      - name: Build
-        run: pnpm build
-      - name: Deploy
-        uses: easingthemes/ssh-deploy@main
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.ASSISTANT_DEPLOY_KEY }}
-          REMOTE_HOST: ${{ secrets.ASSISTANT_DEPLOY_HOST }}
-          REMOTE_USER: ${{ secrets.ASSISTANT_DEPLOY_USER }}
-          ARGS: "-rltgoDzvO --delete"
-          SOURCE: "dist/"
-          TARGET: ${{ (github.ref == 'refs/heads/dev' && '/usr/local/src/webapp/chat/frontend/dev') || (github.ref == 'refs/heads/prerelease' && '/usr/local/src/webapp/chat/frontend/prerelease') || '/usr/local/src/webapp/chat/frontend/prod' }}
-          EXCLUDE: "/dist/, /node_modules/"
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v3
+            - name: Install Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: "18.x"
+            - name: Install Dependencies
+              run: npm install -g pnpm && pnpm install
+            - name: Build
+              run: pnpm build
+            - name: Deploy
+              uses: easingthemes/ssh-deploy@main
+              env:
+                  SSH_PRIVATE_KEY: ${{ secrets.ASSISTANT_DEPLOY_KEY }}
+                  REMOTE_HOST: ${{ secrets.ASSISTANT_DEPLOY_HOST }}
+                  REMOTE_USER: ${{ secrets.ASSISTANT_DEPLOY_USER }}
+                  ARGS: "-rltgoDzvO --delete"
+                  SOURCE: "dist/"
+                  TARGET: ${{ (github.ref == 'refs/heads/dev' && '/usr/local/src/webapp/chat/frontend/dev') || (github.ref == 'refs/heads/prerelease' && '/usr/local/src/webapp/chat/frontend/prerelease') || '/usr/local/src/webapp/chat/frontend/prod' }}
+                  EXCLUDE: "/dist/, /node_modules/"

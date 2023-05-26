@@ -3,22 +3,22 @@
 wget https://raw.githubusercontent.com/776A0A/tools/main/packed/nginx.zip
 
 if ! command -v unzip >/dev/null; then
-  echo "\033[33mUnzip tool is not installed.\033[0m"
-  read -p "Do you want to install it? (y/n) " choice
-  case "$choice" in
-  y | Y)
-    echo "Installing unzip tool..."
-    yum install -y unzip
-    ;;
-  n | N)
-    echo "Exiting script."
-    exit 1
-    ;;
-  *)
-    echo "Invalid choice. Exiting script."
-    exit 1
-    ;;
-  esac
+    echo "\033[33mUnzip tool is not installed.\033[0m"
+    read -p "Do you want to install it? (y/n) " choice
+    case "$choice" in
+    y | Y)
+        echo "Installing unzip tool..."
+        yum install -y unzip
+        ;;
+    n | N)
+        echo "Exiting script."
+        exit 1
+        ;;
+    *)
+        echo "Invalid choice. Exiting script."
+        exit 1
+        ;;
+    esac
 fi
 
 unzip nginx.zip

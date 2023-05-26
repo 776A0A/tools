@@ -28,8 +28,8 @@
 
 ## 注意事项
 
-- 请确保您的计算机已经安装了 curl 和 bash。
-- 请确保您传入的 URL 是可信的，以避免安全问题。
+-   请确保您的计算机已经安装了 curl 和 bash。
+-   请确保您传入的 URL 是可信的，以避免安全问题。
 
 ## 将 run_web_sh 加入环境变量（CentOS 7）
 
@@ -45,29 +45,29 @@ wget https://raw.githubusercontent.com/776A0A/tools/main/run_web_sh
 
 2. 添加可执行权限，使用以下命令：
 
-   ```
-   chmod +x /usr/local/bin/run_web_sh
-   ```
+    ```
+    chmod +x /usr/local/bin/run_web_sh
+    ```
 
 3. 打开你的 `.bashrc` 文件，使用以下命令：
 
-   ```
-   vi ~/.bashrc
-   ```
+    ```
+    vi ~/.bashrc
+    ```
 
 4. 在 `.bashrc` 文件中添加以下行：
 
-   ```
-   export PATH=$PATH:/usr/local/bin
-   ```
+    ```
+    export PATH=$PATH:/usr/local/bin
+    ```
 
-   这将把 `/usr/local/bin` 目录添加到你的环境变量中。
+    这将把 `/usr/local/bin` 目录添加到你的环境变量中。
 
 5. 保存并关闭文件，然后使用以下命令使更改生效：
 
-   ```
-   source ~/.bashrc
-   ```
+    ```
+    source ~/.bashrc
+    ```
 
 # zip_it
 
@@ -81,8 +81,8 @@ wget https://raw.githubusercontent.com/776A0A/tools/main/run_web_sh
 ./zip_it <file/dir> [name]
 ```
 
-- `<file/dir>`：要压缩的文件或目录的路径。
-- `[name]`：可选参数，压缩文件的名称，默认为原文件或目录的名称。
+-   `<file/dir>`：要压缩的文件或目录的路径。
+-   `[name]`：可选参数，压缩文件的名称，默认为原文件或目录的名称。
 
 ## 示例
 
@@ -100,10 +100,10 @@ wget https://raw.githubusercontent.com/776A0A/tools/main/run_web_sh
 
 ## 注意事项
 
-- 压缩文件将保存到 `packed` 目录下。
-- 如果指定的名称已存在，将覆盖原有文件。
-- 如果指定的路径为目录，则将目录及其子目录下的所有文件和文件夹压缩为一个 zip 文件。
-- 如果指定的路径为文件，则将该文件压缩为一个 zip 文件。
+-   压缩文件将保存到 `packed` 目录下。
+-   如果指定的名称已存在，将覆盖原有文件。
+-   如果指定的路径为目录，则将目录及其子目录下的所有文件和文件夹压缩为一个 zip 文件。
+-   如果指定的路径为文件，则将该文件压缩为一个 zip 文件。
 
 # nginx 配置
 
@@ -119,4 +119,4 @@ run_web_sh https://raw.githubusercontent.com/776A0A/tools/main/get_nginx_config
 
 ## 注意事项
 
-- `nginx.conf` 中需要替换的值：`YOUR_APP`、`$your_site_com`
+-   `nginx.conf` 中需要替换的值：`YOUR_APP`、`$your_site_com`
