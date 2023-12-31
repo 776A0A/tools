@@ -1,0 +1,135 @@
+#!/bin/bash
+
+convert_time_format() {
+    local input_range=$1
+
+    # 分割输入为开始时间和结束时间
+    local start_time=${input_range%-*}
+    local end_time=${input_range#*-}
+
+    # 转换开始时间
+    start_time=$(time_format "$start_time")
+
+    # 检测结束时间是否包含点号，以确定是哪种模式
+    if [[ "$end_time" == *"."* ]]; then
+        # 正常模式：结束时间包含小时、分钟或秒
+        end_time=$(time_format "$end_time")
+    else
+        # 便捷模式：结束时间只包含秒
+        local start_seconds=$(time_to_seconds "$start_time")
+
+        # 计算结束时间的秒数
+        local end_minutes=$(( start_seconds / 60 ))
+        local end_seconds=$(( end_minutes * 60 + end_time ))
+
+        # 处理秒数、分钟数和小时数的进位
+        if (( end_time <= start_seconds % 60 )); then
+            if (( end_time == start_seconds % 60 )); then
+                (( end_seconds += 60 )) # 增加整整一分钟
+            else
+                if (( end_minutes % 60 == 59 )); then
+                    (( end_seconds += 60 )) # 进位到下一个小时
+                else
+                    (( end_seconds += 60 )) # 进位到下一分钟
+                fi
+            fi
+        fi
+
+        # 转换回 h:mm:ss 格式
+        end_time=$(seconds_to_time "$end_seconds")
+    fi
+
+    printf "%s-%s" "$start_time" "$end_time"
+}
+
+time_format() {
+    local time=$1
+    local hours=0
+    local minutes=0
+    local seconds=0
+
+    IFS='.' read -r part1 part2 part3 <<< "$time"
+
+    if [[ -n $part3 ]]; then
+        hours=$part1
+        minutes=$part2
+        seconds=$part3
+    elif [[ -n $part2 ]]; then
+        minutes=$part1
+        seconds=$part2
+    else
+        seconds=$part1
+    fi
+
+    printf "%d:%02d:%02d" "$hours" "$minutes" "$seconds"
+}
+
+time_to_seconds() {
+    local input_time=$1
+    local hours minutes seconds
+    IFS=':' read -r hours minutes seconds <<< "$input_time"
+
+    echo $(( hours * 3600 + minutes * 60 + seconds ))
+}
+
+seconds_to_time() {
+    local total_seconds=$1
+    local hours=$((total_seconds / 3600))
+    local minutes=$(( (total_seconds % 3600) / 60))
+    local seconds=$((total_seconds % 60))
+
+    printf "%d:%02d:%02d" "$hours" "$minutes" "$seconds"
+}
+
+passed_tests=0
+
+test_convert_time_format() {
+    local test_case=$1
+    local expected=$2
+
+    local result=$(convert_time_format "$test_case")
+
+    if [[ "$result" == "$expected" ]]; then
+	((passed_tests++))
+        echo -ne "\r\033[32mTests passed: $passed_tests\033[0m"
+    else
+        echo -e "\033[31mTest failed for $test_case: Expected $expected, got $result\033[0m"
+        exit 1 
+    fi
+}
+
+# 测试用例
+test_convert_time_format "0-10" "0:00:00-0:00:10"
+test_convert_time_format "1.2-1.20" "0:01:02-0:01:20"
+test_convert_time_format "34.0-34.10" "0:34:00-0:34:10"
+test_convert_time_format "5-2.10" "0:00:05-0:02:10"
+test_convert_time_format "0-1.0.0" "0:00:00-1:00:00"
+test_convert_time_format "5-1.0.2" "0:00:05-1:00:02"
+test_convert_time_format "4.0-1.2.1" "0:04:00-1:02:01"
+test_convert_time_format "34.5-1.4.34" "0:34:05-1:04:34"
+test_convert_time_format "59.50-1" "0:59:50-1:00:01"
+test_convert_time_format "1.59.55-5" "1:59:55-2:00:05"
+test_convert_time_format "1.2-10" "0:01:02-0:01:10"
+test_convert_time_format "1.2.3-20" "1:02:03-1:02:20"
+test_convert_time_format "1.30-5" "0:01:30-0:02:05"
+test_convert_time_format "1.4.50-10" "1:04:50-1:05:10"
+
+# 正常模式
+test_convert_time_format "1.2.3-2.3.4" "1:02:03-2:03:04"
+test_convert_time_format "1.2.10-1.2.20" "1:02:10-1:02:20"
+test_convert_time_format "1.59.55-2.0.5" "1:59:55-2:00:05"
+
+# 便捷模式
+test_convert_time_format "1.59.55-30" "1:59:55-2:00:30"
+test_convert_time_format "1.30.30-30" "1:30:30-1:31:30"
+test_convert_time_format "1.30.30-40" "1:30:30-1:30:40"
+test_convert_time_format "2.35-35" "0:02:35-0:03:35"
+
+# 边缘情况
+test_convert_time_format "1.59.55-59" "1:59:55-1:59:59"
+test_convert_time_format "1.0.5-10" "1:00:05-1:00:10"
+test_convert_time_format "0-30" "0:00:00-0:00:30"
+test_convert_time_format "0.0.0-30" "0:00:00-0:00:30"
+
+# 添加一个新行
+echo ""

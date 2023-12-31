@@ -28,17 +28,24 @@ input_file_name=$(basename -- "$input_file")
 input_file_extension="${input_file_name##*.}"
 input_file_name="${input_file_name%.*}"
 
+source ./convert_time_format
+
 for time_range in "${time_ranges[@]}"; do
 
-    time_range=${time_range//./:}
+    formatted_time=$(convert_time_format "${time_range}")
+    echo $formatted_time
+    # 将时间范围的开始和结束时间转换为所需的格式
+    start_time=${formatted_time%-*}
+    end_time=${formatted_time#*-}
 
-    output_file_name="$input_file_name"__"${time_range//:/_}"."$input_file_extension"
+    output_file_name="$input_file_name"__"${start_time//:/_}"-"${end_time//:/_}"."$input_file_extension"
     output_file="$out_dir/$output_file_name"
 
-    echo "Processing $time_range..."
+    echo "Processing $start_time to $end_time..."
 
     # -avoid_negative_ts 1
-    ffmpeg -loglevel error -ss "${time_range%-*}" -to "${time_range#*-}" -accurate_seek -i "$input_file" -c copy "$output_file"
+    # 使用转换后的时间格式进行剪切
+    ffmpeg -loglevel error -ss "$start_time" -to "$end_time" -accurate_seek -i "$input_file" -c copy "$output_file"
 
     if [ $? -eq 0 ]; then
         echo -e "\033[32mOutput file saved as $output_file\033[0m"
