@@ -18,21 +18,31 @@ convert_time_format() {
         # 便捷模式：结束时间只包含秒
         local start_seconds=$(time_to_seconds "$start_time")
 
+        local hours minutes seconds
+        IFS=':' read -r hours minutes seconds <<<"$start_time"
+
         # 计算结束时间的秒数
-        local end_minutes=$(( start_seconds / 60 ))
-        local end_seconds=$(( end_minutes * 60 + end_time ))
+        local end_minutes=$((start_seconds / 60))
+        local end_seconds=$((end_minutes * 60 + end_time))
 
         # 处理秒数、分钟数和小时数的进位
-        if (( end_time <= start_seconds % 60 )); then
-            if (( end_time == start_seconds % 60 )); then
-                (( end_seconds += 60 )) # 增加整整一分钟
+        if ((10#$end_time <= 10#$(echo $start_seconds % 60 | bc))); then
+            if ((end_time == start_seconds % 60)); then
+                ((end_seconds += 60)) # 增加整整一分钟
             else
-                if (( end_minutes % 60 == 59 )); then
-                    (( end_seconds += 60 )) # 进位到下一个小时
+                if ((end_minutes % 60 == 59)); then
+                    ((end_seconds += 60)) # 进位到下一个小时
                 else
-                    (( end_seconds += 60 )) # 进位到下一分钟
+                    ((end_seconds += 60)) # 进位到下一分钟
                 fi
             fi
+        else
+            # 结束秒数大于开始秒数的情况
+            local start_hours=$((start_seconds / 3600))
+            local start_minutes=$(((start_seconds % 3600) / 60))
+
+            # 仅更新秒数，小时和分钟保持不变
+            end_seconds=$((start_hours * 3600 + start_minutes * 60 + 10#$end_time))
         fi
 
         # 转换回 h:mm:ss 格式
@@ -48,7 +58,7 @@ time_format() {
     local minutes=0
     local seconds=0
 
-    IFS='.' read -r part1 part2 part3 <<< "$time"
+    IFS='.' read -r part1 part2 part3 <<<"$time"
 
     if [[ -n $part3 ]]; then
         hours=$part1
@@ -67,15 +77,20 @@ time_format() {
 time_to_seconds() {
     local input_time=$1
     local hours minutes seconds
-    IFS=':' read -r hours minutes seconds <<< "$input_time"
+    IFS=':' read -r hours minutes seconds <<<"$input_time"
 
-    echo $(( hours * 3600 + minutes * 60 + seconds ))
+    # 使用10#前缀来确保数字被解释为十进制
+    hours=${hours#0}
+    minutes=${minutes#0}
+    seconds=${seconds#0}
+
+    echo $((10#$hours * 3600 + 10#$minutes * 60 + 10#$seconds))
 }
 
 seconds_to_time() {
     local total_seconds=$1
     local hours=$((total_seconds / 3600))
-    local minutes=$(( (total_seconds % 3600) / 60))
+    local minutes=$(((total_seconds % 3600) / 60))
     local seconds=$((total_seconds % 60))
 
     printf "%d:%02d:%02d" "$hours" "$minutes" "$seconds"
@@ -90,11 +105,11 @@ test_convert_time_format() {
     local result=$(convert_time_format "$test_case")
 
     if [[ "$result" == "$expected" ]]; then
-	((passed_tests++))
+        ((passed_tests++))
         echo -ne "\r\033[32mTests passed: $passed_tests\033[0m"
     else
         echo -e "\033[31mTest failed for $test_case: Expected $expected, got $result\033[0m"
-        exit 1 
+        exit 1
     fi
 }
 
@@ -124,6 +139,7 @@ test_convert_time_format "1.59.55-30" "1:59:55-2:00:30"
 test_convert_time_format "1.30.30-30" "1:30:30-1:31:30"
 test_convert_time_format "1.30.30-40" "1:30:30-1:30:40"
 test_convert_time_format "2.35-35" "0:02:35-0:03:35"
+test_convert_time_format "9.5-15" "0:09:05-0:09:15"
 
 # 边缘情况
 test_convert_time_format "1.59.55-59" "1:59:55-1:59:59"
