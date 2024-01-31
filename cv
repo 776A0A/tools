@@ -28,7 +28,7 @@ input_file_name=$(basename -- "$input_file")
 input_file_extension="${input_file_name##*.}"
 input_file_name="${input_file_name%.*}"
 
-source ./convert_time_format
+source /usr/local/bin/convert_time_format
 
 for time_range in "${time_ranges[@]}"; do
 
