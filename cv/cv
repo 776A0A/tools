@@ -5,12 +5,30 @@ if ! command -v ffmpeg &>/dev/null; then
     exit
 fi
 
+special_mode=false
+while getopts "s" opt; do
+    case "$opt" in
+        s)
+            special_mode=true
+            ;;
+        *)
+            ;;
+    esac
+done
+shift $((OPTIND - 1))
+
 if [ $# -lt 2 ]; then
-    echo "Usage: cv time_range1,time_range2,... input_file [out_dir]"
+    echo "Usage: cv [-s] time_range1,time_range2,... input_file [out_dir]"
+    echo "       支持半角/全角逗号，且可混合分隔"
     exit
 fi
 
-IFS=',' read -ra time_ranges <<<"$1"
+time_arg="$1"
+# Remove trailing half/full-width commas if present
+while [[ -n "$time_arg" && ( "${time_arg: -1}" = "," || "${time_arg: -1}" = "，" ) ]]; do
+    time_arg="${time_arg%?}"
+done
+IFS=',，' read -ra time_ranges <<<"$time_arg"
 input_file=$2
 
 if [ ! -f "$input_file" ]; then
@@ -29,8 +47,14 @@ input_file_extension="${input_file_name##*.}"
 input_file_name="${input_file_name%.*}"
 
 source /usr/local/bin/convert_time_format
+source /usr/local/bin/generate_output_filename
 
 for time_range in "${time_ranges[@]}"; do
+
+    # Skip empty segments (e.g., when trailing comma exists)
+    if [ -z "$time_range" ]; then
+        continue
+    fi
 
     formatted_time=$(convert_time_format "${time_range}")
     echo $formatted_time
@@ -38,7 +62,7 @@ for time_range in "${time_ranges[@]}"; do
     start_time=${formatted_time%-*}
     end_time=${formatted_time#*-}
 
-    output_file_name="$input_file_name"__"${start_time//:/_}"-"${end_time//:/_}"."$input_file_extension"
+    output_file_name=$(generate_output_filename "$input_file_name" "$start_time" "$end_time" "$input_file_extension" "$special_mode")
     output_file="$out_dir/$output_file_name"
 
     echo "Processing $start_time to $end_time..."

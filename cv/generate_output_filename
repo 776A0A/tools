@@ -1,0 +1,114 @@
+#!/bin/bash
+
+# generate_output_filename input_file_name start_time end_time input_file_extension special_mode
+# 输出：将结果通过 echo 打印
+
+trim() {
+    # 去除首尾空白字符
+    printf '%s' "$1" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
+}
+
+generate_output_filename() {
+    local input_file_name=$1
+    local start_time=$2
+    local end_time=$3
+    local input_file_extension=$4
+    local special_mode=${5:-false}
+
+    local start_repl=${start_time//:/_}
+    local end_repl=${end_time//:/_}
+
+    if [ "$special_mode" = true ]; then
+        # 先整体 trim；若存在以"- "开头的前缀则保留，仅对后半部分进行分割与重组
+        local name_for_split
+        name_for_split=$(trim "$input_file_name")
+
+        local preserved_prefix=""
+        if [[ "$name_for_split" == "- "* ]]; then
+            preserved_prefix="- "
+            name_for_split="${name_for_split#- }"
+            name_for_split=$(trim "$name_for_split")
+        fi
+
+        if [[ "$name_for_split" == *" "* ]]; then
+            local left_part="${name_for_split%% *}"
+            local right_part="${name_for_split#* }"
+            left_part=$(trim "$left_part")
+            right_part=$(trim "$right_part")
+            echo "${preserved_prefix}${left_part}__${start_repl}-${end_repl} ${right_part}.${input_file_extension}"
+        else
+            echo "${preserved_prefix}${name_for_split}__${start_repl}-${end_repl}.${input_file_extension}"
+        fi
+    else
+        echo "${input_file_name}__${start_repl}-${end_repl}.${input_file_extension}"
+    fi
+}
+
+# -------------------------
+# 自测（与 convert_time_format 的风格一致）
+# 仅当直接运行该脚本时才执行测试
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+    passed_tests=0
+
+    test_gen() {
+        local file=$1 s=$2 e=$3 ext=$4 mode=$5 expected=$6
+        local result=$(generate_output_filename "$file" "$s" "$e" "$ext" "$mode")
+        if [[ "$result" == "$expected" ]]; then
+            ((passed_tests++))
+            echo -ne "\r\033[32mTests passed: $passed_tests\033[0m"
+        else
+            echo -e "\033[31mTest failed for [$file,$s,$e,$ext,$mode]: Expected [$expected], got [$result]\033[0m"
+            exit 1
+        fi
+    }
+
+    # 基础：非 special 模式
+    test_gen "AAAA-BBB CCC" "1:02:03" "2:03:04" "mp4" false "AAAA-BBB CCC__1_02_03-2_03_04.mp4"
+    test_gen "XXX" "1:02:03" "2:03:04" "mp4" false "XXX__1_02_03-2_03_04.mp4"
+
+    # special 模式，按第一个空格分割并 trim
+    test_gen "AAAA-BBB CCC" "1:02:03" "2:03:04" "mp4" true  "AAAA-BBB__1_02_03-2_03_04 CCC.mp4"
+    test_gen " AAAA-BBB   CCC  " "0:00:00" "0:10:00" "mkv" true "AAAA-BBB__0_00_00-0_10_00 CCC.mkv"
+    test_gen "XXX" "0:00:00" "0:10:00" "mkv" true "XXX__0_00_00-0_10_00.mkv"
+    test_gen "XXX A" "0:00:00" "0:10:00" "mkv" true "XXX__0_00_00-0_10_00 A.mkv"
+    test_gen "B XXX A" "0:00:00" "0:10:00" "mkv" true "B__0_00_00-0_10_00 XXX A.mkv"
+
+    # special 模式，带前缀"- "需保留，仅重组后半部分
+    test_gen "- AAAA-BBB CCC" "02:01:00" "02:12:56" "mp4" true  "- AAAA-BBB__02_01_00-02_12_56 CCC.mp4"
+    test_gen "-    AAAA-BBB CCC" "02:01:00" "02:12:56" "mp4" true  "- AAAA-BBB__02_01_00-02_12_56 CCC.mp4"
+    test_gen "- CCC" "02:01:00" "02:12:56" "mp4" true  "- CCC__02_01_00-02_12_56.mp4"
+    test_gen "- CCC A" "02:01:00" "02:12:56" "mp4" true  "- CCC__02_01_00-02_12_56 A.mp4"
+    test_gen "B - CCC A" "02:01:00" "02:12:56" "mp4" true  "B__02_01_00-02_12_56 - CCC A.mp4"
+
+    # 文件名无空格：special 模式也走默认
+    test_gen "AAAA-BBB" "0:00:05" "0:01:05" "mp4" true "AAAA-BBB__0_00_05-0_01_05.mp4"
+
+    # 其他边界与非常规情况
+    # 1) 空文件名（默认与 special 模式一致）
+    test_gen "" "0:00:00" "0:10:00" "mp4" false "__0_00_00-0_10_00.mp4"
+    test_gen "" "0:00:00" "0:10:00" "mp4" true  "__0_00_00-0_10_00.mp4"
+
+    # 2) 仅有空白（会被 trim 成空字符串）
+    test_gen "   " "0:00:00" "0:10:00" "mp4" true  "__0_00_00-0_10_00.mp4"
+
+    # 3) 多个空格分隔，仅按第一个空格分割，其余保留在右侧
+    test_gen "A    B   C" "0:00:00" "0:10:00" "mp4" true "A__0_00_00-0_10_00 B   C.mp4"
+
+    # 4) 中括号/标点/点号等字符
+    test_gen "[LIVE] AAA BBB" "0:00:00" "0:10:00" "mp4" true "[LIVE]__0_00_00-0_10_00 AAA BBB.mp4"
+    test_gen "A.B C.D" "0:00:00" "0:10:00" "mp4" true "A.B__0_00_00-0_10_00 C.D.mp4"
+
+    # 5) 中文与空格
+    test_gen "标题 子标题" "0:00:00" "0:10:00" "mp4" true "标题__0_00_00-0_10_00 子标题.mp4"
+
+    # 6) 名称中包含制表符但无 ASCII 空格（不会触发分割）
+    # 说明：不以制表符作为分割点（仅匹配空格），因此整体视为无空格路径
+    test_gen $'A\tB' "0:00:00" "0:10:00" "mp4" true $'A\tB__0_00_00-0_10_00.mp4'
+
+    # 7) 带前缀但后半部分仅有单词（已覆盖），再增加带多词右半部分
+    test_gen "- 标题 副 标题" "0:00:00" "0:10:00" "mp4" true "- 标题__0_00_00-0_10_00 副 标题.mp4"
+
+    echo ""
+fi
+
+
